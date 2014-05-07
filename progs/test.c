@@ -1,14 +1,29 @@
-unsigned int get_num(int a);
 int test(){
-	/*unsigned int x = get_num(7);
+	//*(unsigned int*)0x84=0x0000aaaa;
+	//unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
+	//*(unsigned int*)0x84=a;
+	while(1){
+		//unsigned int a = ( *(unsigned int*) 0xC0 );
+		unsigned int b =  *(unsigned int*) 0xC8;//( a / 16  )& 0xf;
+		//unsigned int c = ( a ) & 0xf ; //works
+		unsigned int c = *(unsigned int*) 0xCC;
+		*(unsigned int*) 0x88 = b;
+		*(unsigned int*) 0x8c = c;
+		*(unsigned int*) 0x90 = b+c;
+	}
+}
+/*unsigned int get_num(int a);
+int test(){
+	unsigned int x = get_num(7);
 	x |= x << 8;
 	x |= x << 16;
-	x |= x << 24;*/
+	x |= x << 24;
 	while(1){
 		*(int*)(0x80)=0b10100100101001001010010010100100;
 		*(int*)(0x84)=0b10100100101001001010010010100100;
 	}
 }
+*/
 /*int test()  __attribute__ ((noreturn));
 int test() {
 	int a = -4 ;
@@ -34,6 +49,7 @@ int test() {
 	);
 }
 */
+/*
 inline unsigned int get_num(int a){
 			if ( a==0 )return 0b00000000000000000000000011000000;
 	else 	if ( a==1 )return 0b00000000000000000000000011111001;
@@ -52,3 +68,4 @@ inline unsigned int get_num(int a){
 	
 	
 }
+*/
