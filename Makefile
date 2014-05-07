@@ -1,4 +1,5 @@
 TEXTOFFSET := 0x0
+DATAOFFSET := 0X0
 
 CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
