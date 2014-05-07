@@ -1,5 +1,5 @@
 
-CLFAGS := -O2 -fomit-frame-pointer
+CLFAGS := -O0 -fomit-frame-pointer
 OBJDIR := obj
 LDFLAGS :=
 OBJDUMPFLAG := -M no-aliases
