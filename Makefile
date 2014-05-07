@@ -1,8 +1,8 @@
 
-CLFAGS := -O0 -fomit-frame-pointer
+CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
 LDFLAGS :=
-OBJDUMPFLAG := -M no-aliases
+OBJDUMPOPT := -M no-aliases
 
 CC :=  mips-linux-gnu-gcc
 OBJDUMP := mips-linux-gnu-objdump
@@ -12,7 +12,7 @@ LD := mips-linux-gnu-ld
 all: $(OBJDIR)/prog.mif
 
 clean:
-	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog $(OBJDIR)/prog.asm
+	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm
 
 $(OBJDIR)/%.o: progs/%.c
 	@echo + cc -Os $<
@@ -23,20 +23,16 @@ $(OBJDIR)/%.o: progs/%.c
 $(OBJDIR)/prog: $(OBJDIR)/test.o
 	@echo + Linking
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x0 -o $@.out $^
-	$(OBJDUMP) $(OBJDUMPFLAG) -S $@.out >$@.asm
+	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 	#hexdump -v $^ | awk 'BEGIN {x=0} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
-	hexdump -v -e ' 4/1 "%02x " "\n"' $^ >tmp.0
-	#fix addiu
-	cat tmp.0 |  sed -e 's/^24/20/g' | sed -e 's/^25/21/g' | sed -e 's/^26/22/g' | sed -e 's/^27/23/g' >tmp.1
-	cat tmp.1 | awk 'BEGIN {x=0} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.out
-	rm tmp.?
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=0} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.out
 	
 $(OBJDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $(OBJDIR)/prog.mif
-	echo "DEPTH = 64; % Memory depth and width are required % " 				>>$(OBJDIR)/prog.mif
+	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OBJDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OBJDIR)/prog.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OBJDIR)/prog.mif
 	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OBJDIR)/prog.mif
