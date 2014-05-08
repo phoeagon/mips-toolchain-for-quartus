@@ -1,4 +1,4 @@
-
+HASBOOT ?= 0
 TEXTOFFSET ?= 0x0
 DATAOFFSET ?= 0X100
 
@@ -15,6 +15,25 @@ OBJCOPY := mips-linux-gnu-objcopy
 LD := mips-linux-gnu-ld
 
 all: $(OUTDIR)/data.mif $(OUTDIR)/prog.mif
+
+complex: *
+	make TEXTOFFSET=0x100 DATAOFFSET=0x800
+	
+$(OBJDIR)/boot.o: boot/boot.S
+	$(CC) -o $@ -c $<
+
+$(OBJDIR)/boot: boot/boot.o
+	$(LD) -Ttext=0x0 -o $@ $< 
+
+$(OBJDIR)/boot.out: $(OBJDIR)/boot
+	$(OBJCOPY) -S -O binary -j .text $< $@
+
+$(OBJDIR)/boot.hex: $(OBJDIR)/boot.out
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=0} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
+
+bootchain: $(OBJDIR)/boot.hex
+	make TEXTOFFSET=0x100 DATAOFFSET=0x800 HASBOOT=1
+	
 
 clean:
 	rm $(OBJDIR)/* $(OUTDIR)/*
@@ -60,6 +79,7 @@ $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	echo "% otherwise specified, radixes = HEX % "				>>$(OUTDIR)/prog.mif
 	echo "CONTENT "				>>$(OUTDIR)/prog.mif
 	echo "BEGIN "				>>$(OUTDIR)/prog.mif
+	if [ $(HASBOOT) -ne 0 ];then echo "FOUND BOOT!";(cat $(OBJDIR)/boot.hex >>$(OUTDIR)/prog.mif);fi
 	cat $(OBJDIR)/tmp.out			>>$(OUTDIR)/prog.mif
 	-rm $(OBJDIR)/tmp.out	
 	echo "END ; "				>>$(OUTDIR)/prog.mif
