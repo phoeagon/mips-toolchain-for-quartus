@@ -6,6 +6,7 @@ OBJDIR := obj
 LDFLAGS :=
 OBJDUMPOPT := -M no-aliases
 
+READELF := mips-linux-gnu-readelf
 CC :=  mips-linux-gnu-gcc
 OBJDUMP := mips-linux-gnu-objdump
 OBJCOPY := mips-linux-gnu-objcopy
@@ -14,7 +15,7 @@ LD := mips-linux-gnu-ld
 all: $(OBJDIR)/prog.mif
 
 clean:
-	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm
+	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data $(OBJDIR)/prog.bss
 
 $(OBJDIR)/%.o: progs/%.c
 	@echo + cc -Os $<
@@ -24,9 +25,24 @@ $(OBJDIR)/%.o: progs/%.c
 
 $(OBJDIR)/prog: $(OBJDIR)/test.o
 	@echo + Linking
+	-rm $(OBJDIR)/prog.data $(OBJDIR)/prog.bss
 	$(LD) $(LDFLAGS) -N -e start -Ttext $(TEXTOFFSET) -Tdata $(DATAOFFSET) -o $@.out $^
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
+	$(READELF) -S $@.out | grep -q ".data"; \
+	if [ $$? -eq 0 ];\
+	then \
+		echo "Parsing DATA";\
+		offset=$$($(READELF) -S $@.out | grep ".data" | awk '{print $$5;}');\
+		$(OBJCOPY) -S -O binary -j .data $@.out $@.data;\
+	fi
+	$(READELF) -S $@.out | grep -q ".sbss"; \
+	if [ $$? -eq 0 ];\
+	then \
+		echo "Parsing BSS";\
+		offset=$$($(READELF) -S $@.out | grep ".sbss" | awk '{print $$5;}');\
+		$(OBJCOPY) -S -O binary -j .sbss $@.out $@.bss;\
+	fi
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out

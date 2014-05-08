@@ -1,5 +1,5 @@
 int a=1;
-int b;
+//int b;
 int test(){
 	//*(unsigned int*)0x84=0x0000aaaa;
 	//unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
