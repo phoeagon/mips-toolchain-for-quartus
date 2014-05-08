@@ -3,6 +3,7 @@ DATAOFFSET := 0X100
 
 CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
+OUTDIR := mif
 LDFLAGS :=
 OBJDUMPOPT := -M no-aliases
 
@@ -12,10 +13,10 @@ OBJDUMP := mips-linux-gnu-objdump
 OBJCOPY := mips-linux-gnu-objcopy
 LD := mips-linux-gnu-ld
 
-all: $(OBJDIR)/prog.mif
+all: $(OUTDIR)/data.mif $(OUTDIR)/prog.mif
 
 clean:
-	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data 
+	rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OUTDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data  $(OUTDIR)/data.mif 
 
 $(OBJDIR)/%.o: progs/%.c
 	@echo + cc -Os $<
@@ -30,6 +31,8 @@ $(OBJDIR)/prog: $(OBJDIR)/test.o
 	$(OBJDOPY) --rename-section .data=.rodata,alloc,load,readonly,data,contents $@ $@
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
+
+$(OBJDIR)/prog.data $(OBJDIR)/prog
 	touch $@.data
 	$(READELF) -S $@.out | grep -q ".data"; \
 	if [ $$? -eq 0 ];\
@@ -46,7 +49,7 @@ $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.data.out
 	
-$(OBJDIR)/prog.mif: $(OBJDIR)/tmp.out
+$(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
 	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OBJDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OBJDIR)/prog.mif
@@ -55,11 +58,11 @@ $(OBJDIR)/prog.mif: $(OBJDIR)/tmp.out
 	echo "% otherwise specified, radixes = HEX % "				>>$(OBJDIR)/prog.mif
 	echo "CONTENT "				>>$(OBJDIR)/prog.mif
 	echo "BEGIN "				>>$(OBJDIR)/prog.mif
-	cat @<						>>$(OBJDIR)/prog.mif
-	-rm @<	
+	cat $(OBJDIR)/tmp.out			>>$(OBJDIR)/prog.mif
+	-rm $(OBJDIR)/tmp.out	
 	echo "END ; "				>>$(OBJDIR)/prog.mif
 
-$(OBJDIR)/data.mif: $(OBJDIR)/tmp.data.out
+$(OUTDIR)/data.mif: $(OBJDIR)/tmp.data.out
 	-rm $@
 	echo "DEPTH = 128; % Memory depth and width are required % " 		>>$(OBJDIR)/data.mif
 	echo "WIDTH = 32; % Enter a decimal number % "						>>$(OBJDIR)/data.mif
@@ -68,6 +71,6 @@ $(OBJDIR)/data.mif: $(OBJDIR)/tmp.data.out
 	echo "% otherwise specified, radixes = HEX % "						>>$(OBJDIR)/data.mif
 	echo "CONTENT "				>>$(OBJDIR)/data.mif
 	echo "BEGIN "				>>$(OBJDIR)/data.mif
-	cat @<					>>$(OBJDIR)/data.mif
-	-rm @<	
+	cat $(OBJDIR)/tmp.data.out		>>$(OBJDIR)/data.mif
+	-rm $(OBJDIR)/tmp.data.out	
 	echo "END ; "				>>$(OBJDIR)/data.mif
