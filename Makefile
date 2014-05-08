@@ -15,7 +15,7 @@ LD := mips-linux-gnu-ld
 all: $(OBJDIR)/prog.mif
 
 clean:
-	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data $(OBJDIR)/prog.bss
+	-rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OBJDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data 
 
 $(OBJDIR)/%.o: progs/%.c
 	@echo + cc -Os $<
@@ -27,8 +27,10 @@ $(OBJDIR)/prog: $(OBJDIR)/test.o
 	@echo + Linking
 	-rm $(OBJDIR)/prog.data $(OBJDIR)/prog.bss
 	$(LD) $(LDFLAGS) -N -e start -Ttext $(TEXTOFFSET) -Tdata $(DATAOFFSET) -o $@.out $^
+	$(OBJDOPY) --rename-section .data=.rodata,alloc,load,readonly,data,contents $@ $@
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
+	touch $@.data
 	$(READELF) -S $@.out | grep -q ".data"; \
 	if [ $$? -eq 0 ];\
 	then \
@@ -36,20 +38,16 @@ $(OBJDIR)/prog: $(OBJDIR)/test.o
 		offset=$$($(READELF) -S $@.out | grep ".data" | awk '{print $$5;}');\
 		$(OBJCOPY) -S -O binary -j .data $@.out $@.data;\
 	fi
-	$(READELF) -S $@.out | grep -q ".sbss"; \
-	if [ $$? -eq 0 ];\
-	then \
-		echo "Parsing BSS";\
-		offset=$$($(READELF) -S $@.out | grep ".sbss" | awk '{print $$5;}');\
-		$(OBJCOPY) -S -O binary -j .sbss $@.out $@.bss;\
-	fi
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.out
+
+$(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.data.out
 	
 $(OBJDIR)/prog.mif: $(OBJDIR)/tmp.out
-	-rm $(OBJDIR)/prog.mif
+	-rm $@
 	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OBJDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OBJDIR)/prog.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OBJDIR)/prog.mif
@@ -57,6 +55,19 @@ $(OBJDIR)/prog.mif: $(OBJDIR)/tmp.out
 	echo "% otherwise specified, radixes = HEX % "				>>$(OBJDIR)/prog.mif
 	echo "CONTENT "				>>$(OBJDIR)/prog.mif
 	echo "BEGIN "				>>$(OBJDIR)/prog.mif
-	cat tmp.out					>>$(OBJDIR)/prog.mif
-	-rm tmp.out
+	cat @<						>>$(OBJDIR)/prog.mif
+	-rm @<	
 	echo "END ; "				>>$(OBJDIR)/prog.mif
+
+$(OBJDIR)/data.mif: $(OBJDIR)/tmp.data.out
+	-rm $@
+	echo "DEPTH = 128; % Memory depth and width are required % " 		>>$(OBJDIR)/data.mif
+	echo "WIDTH = 32; % Enter a decimal number % "						>>$(OBJDIR)/data.mif
+	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % ">>$(OBJDIR)/data.mif
+	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "	>>$(OBJDIR)/data.mif
+	echo "% otherwise specified, radixes = HEX % "						>>$(OBJDIR)/data.mif
+	echo "CONTENT "				>>$(OBJDIR)/data.mif
+	echo "BEGIN "				>>$(OBJDIR)/data.mif
+	cat @<					>>$(OBJDIR)/data.mif
+	-rm @<	
+	echo "END ; "				>>$(OBJDIR)/data.mif
