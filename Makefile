@@ -1,6 +1,6 @@
 
-TEXTOFFSET := 0x0
-DATAOFFSET := 0X100
+TEXTOFFSET ?= 0x0
+DATAOFFSET ?= 0X100
 
 CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
@@ -17,7 +17,7 @@ LD := mips-linux-gnu-ld
 all: $(OUTDIR)/data.mif $(OUTDIR)/prog.mif
 
 clean:
-	rm $(OBJDIR)/*.o $(OBJDIR)/prog $(OUTDIR)/prog.mif $(OBJDIR)/prog.asm $(OBJDIR)/prog.data  $(OUTDIR)/data.mif 
+	rm $(OBJDIR)/* $(OUTDIR)/*
 
 $(OBJDIR)/%.o: progs/%.c
 	@echo + cc -Os $<
@@ -53,7 +53,7 @@ $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
 	
 $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
-	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
+	echo "DEPTH = 4096; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OUTDIR)/prog.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OBJDIR)/prog.mif
 	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OUTDIR)/prog.mif
@@ -66,7 +66,7 @@ $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 
 $(OUTDIR)/data.mif: $(OBJDIR)/tmp.data.out
 	-rm $@
-	echo "DEPTH = 128; % Memory depth and width are required % " 		>>$(OUTDIR)/data.mif
+	echo "DEPTH = 4096; % Memory depth and width are required % " 		>>$(OUTDIR)/data.mif
 	echo "WIDTH = 32; % Enter a decimal number % "						>>$(OUTDIR)/data.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % ">>$(OUTDIR)/data.mif
 	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "	>>$(OUTDIR)/data.mif

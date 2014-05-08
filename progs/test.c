@@ -1,16 +1,18 @@
+
 //int a=1;
 //int b;
 int test(){
-	//*(unsigned int*)0x84=0x0000aaaa;
-	//unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
-	//*(unsigned int*)0x84=a;
+	// *(unsigned int*)0x84=0x0000aaaa;
+	// unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
+	// *(unsigned int*)0x84=a;
 	while(1){
 		unsigned int a = ( *(unsigned int*) 0xC0 );
-		unsigned int b = ( a / 32  )& 0x1f;
-		unsigned int c = ( a ) & 0x1f ; //works
+		unsigned int b = ( a / 16  )& 0xf;
+		unsigned int c = ( a ) & 0xf ; //works
+		unsigned int mode = ( a / 256 ) & 1;
 		*(unsigned int*) 0x88 = b;
 		*(unsigned int*) 0x8c = c;
-		*(unsigned int*) 0x90 = b+c;
+		*(unsigned int*) 0x90 = (1-mode)*(b+c)+mode*(b*c) ;
 	}
 }
 /*unsigned int get_num(int a);
