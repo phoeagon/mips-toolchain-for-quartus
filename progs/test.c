@@ -12,7 +12,12 @@ int test(){
 		unsigned int mode = ( a / 256 ) & 1;
 		*(unsigned int*) 0x88 = b;
 		*(unsigned int*) 0x8c = c;
-		*(unsigned int*) 0x90 = (1-mode)*(b+c)+mode*(b*c) ;
+//		*(unsigned int*) 0x90 = (1-mode)*(b+c)+mode*(b*c) ;
+		if ( mode )
+			*(unsigned int*) 0x90 = (b*c) ;
+		else
+			*(unsigned int*) 0x90 = (b+c);
+		
 	}
 }
 /*unsigned int get_num(int a);

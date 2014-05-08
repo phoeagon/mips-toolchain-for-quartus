@@ -2,7 +2,7 @@ HASBOOT ?= 0
 TEXTOFFSET ?= 0x0
 DATAOFFSET ?= 0X100
 
-CLFAGS := -O3 -fomit-frame-pointer
+CLFAGS := -O0 -fomit-frame-pointer
 OBJDIR := obj
 OUTDIR := mif
 LDFLAGS :=
@@ -64,12 +64,12 @@ $(OBJDIR)/prog.data: $(OBJDIR)/prog
 	fi
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
-	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
-	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
+	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)/4;} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)/4} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 
 $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
 	touch $@
-	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)/4} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 	
 $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
