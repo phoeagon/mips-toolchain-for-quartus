@@ -24,6 +24,7 @@ $(OBJDIR)/boot.o: boot/boot.S
 
 $(OBJDIR)/boot: boot/boot.o
 	$(LD) -Ttext=0x0 -o $@ $< 
+	$(OBJDUMP) $(OBJDUMPOPT) -S $@ >$@.asm
 
 $(OBJDIR)/boot.out: $(OBJDIR)/boot
 	$(OBJCOPY) -S -O binary -j .text $< $@
@@ -31,7 +32,7 @@ $(OBJDIR)/boot.out: $(OBJDIR)/boot
 $(OBJDIR)/boot.hex: $(OBJDIR)/boot.out
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=0} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 
-bootchain: $(OBJDIR)/boot.hex
+bootchain: $(OBJDIR)/boot.hex *
 	make TEXTOFFSET=0x100 DATAOFFSET=0x800 HASBOOT=1
 	
 
