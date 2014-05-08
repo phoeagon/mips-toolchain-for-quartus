@@ -52,21 +52,21 @@ $(OBJDIR)/prog: $(OBJDIR)/test.o
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
 
-$(OBJDIR)/prog.data: $(OBJDIR)/prog
+$(OBJDIR)/prog.data.out: $(OBJDIR)/prog
 	touch $@.data
-	$(READELF) -S $@.out | grep -q ".data"; \
+	$(READELF) -S $@.out | grep ".data"; \
 	if [ $$? -eq 0 ];\
 	then \
 		echo "Parsing DATA";\
 		offset=$$($(READELF) -S $@.out | grep ".data" | awk '{print $$5;}');\
-		$(OBJCOPY) -S -O binary -j .data $@.out $@.data;\
+		$(OBJCOPY) -S -O binary -j .data $<.out $@;\
 	fi
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 
-$(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
+$(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data.out
 	touch $@
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 	
