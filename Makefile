@@ -1,3 +1,4 @@
+
 TEXTOFFSET := 0x0
 DATAOFFSET := 0X100
 
@@ -32,7 +33,7 @@ $(OBJDIR)/prog: $(OBJDIR)/test.o
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
 
-$(OBJDIR)/prog.data $(OBJDIR)/prog
+$(OBJDIR)/prog.data: $(OBJDIR)/prog
 	touch $@.data
 	$(READELF) -S $@.out | grep -q ".data"; \
 	if [ $$? -eq 0 ];\
@@ -44,33 +45,34 @@ $(OBJDIR)/prog.data $(OBJDIR)/prog
 
 $(OBJDIR)/tmp.out: $(OBJDIR)/prog
 	#hexdump -v $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s;\n",x,$$2,$$3);++x;printf("%x : %s%s;\n",x,$$4,$$5);++x;printf("%x : %s%s;\n",x,$$6,$$7);++x;printf("%x : %s%s;\n",x,$$8,$$9);++x;}' | grep -P '[0-9a-zA-Z]+ : [0-9a-zA-Z]+' >tmp.out
-	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.out
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(TEXTOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 
 $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
-	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >tmp.data.out
+	touch $@
+	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=$(DATAOFFSET)} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 	
 $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
-	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OBJDIR)/prog.mif
-	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OBJDIR)/prog.mif
+	echo "DEPTH = 128; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
+	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OUTDIR)/prog.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OBJDIR)/prog.mif
-	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OBJDIR)/prog.mif
-	echo "% otherwise specified, radixes = HEX % "				>>$(OBJDIR)/prog.mif
-	echo "CONTENT "				>>$(OBJDIR)/prog.mif
-	echo "BEGIN "				>>$(OBJDIR)/prog.mif
-	cat $(OBJDIR)/tmp.out			>>$(OBJDIR)/prog.mif
+	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OUTDIR)/prog.mif
+	echo "% otherwise specified, radixes = HEX % "				>>$(OUTDIR)/prog.mif
+	echo "CONTENT "				>>$(OUTDIR)/prog.mif
+	echo "BEGIN "				>>$(OUTDIR)/prog.mif
+	cat $(OBJDIR)/tmp.out			>>$(OUTDIR)/prog.mif
 	-rm $(OBJDIR)/tmp.out	
-	echo "END ; "				>>$(OBJDIR)/prog.mif
+	echo "END ; "				>>$(OUTDIR)/prog.mif
 
 $(OUTDIR)/data.mif: $(OBJDIR)/tmp.data.out
 	-rm $@
-	echo "DEPTH = 128; % Memory depth and width are required % " 		>>$(OBJDIR)/data.mif
-	echo "WIDTH = 32; % Enter a decimal number % "						>>$(OBJDIR)/data.mif
-	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % ">>$(OBJDIR)/data.mif
-	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "	>>$(OBJDIR)/data.mif
-	echo "% otherwise specified, radixes = HEX % "						>>$(OBJDIR)/data.mif
-	echo "CONTENT "				>>$(OBJDIR)/data.mif
-	echo "BEGIN "				>>$(OBJDIR)/data.mif
-	cat $(OBJDIR)/tmp.data.out		>>$(OBJDIR)/data.mif
+	echo "DEPTH = 128; % Memory depth and width are required % " 		>>$(OUTDIR)/data.mif
+	echo "WIDTH = 32; % Enter a decimal number % "						>>$(OUTDIR)/data.mif
+	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % ">>$(OUTDIR)/data.mif
+	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "	>>$(OUTDIR)/data.mif
+	echo "% otherwise specified, radixes = HEX % "						>>$(OUTDIR)/data.mif
+	echo "CONTENT "				>>$(OUTDIR)/data.mif
+	echo "BEGIN "				>>$(OUTDIR)/data.mif
+	cat $(OBJDIR)/tmp.data.out		>>$(OUTDIR)/data.mif
 	-rm $(OBJDIR)/tmp.data.out	
-	echo "END ; "				>>$(OBJDIR)/data.mif
+	echo "END ; "				>>$(OUTDIR)/data.mif
