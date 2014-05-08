@@ -1,12 +1,13 @@
+int a=1;
+int b;
 int test(){
 	//*(unsigned int*)0x84=0x0000aaaa;
 	//unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
 	//*(unsigned int*)0x84=a;
 	while(1){
-		//unsigned int a = ( *(unsigned int*) 0xC0 );
-		unsigned int b =  *(unsigned int*) 0xC8;//( a / 16  )& 0xf;
-		//unsigned int c = ( a ) & 0xf ; //works
-		unsigned int c = *(unsigned int*) 0xCC;
+		unsigned int a = ( *(unsigned int*) 0xC0 );
+		unsigned int b = ( a / 32  )& 0x1f;
+		unsigned int c = ( a ) & 0x1f ; //works
 		*(unsigned int*) 0x88 = b;
 		*(unsigned int*) 0x8c = c;
 		*(unsigned int*) 0x90 = b+c;

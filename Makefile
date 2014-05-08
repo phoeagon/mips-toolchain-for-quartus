@@ -1,5 +1,5 @@
 TEXTOFFSET := 0x0
-DATAOFFSET := 0X0
+DATAOFFSET := 0X100
 
 CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
@@ -24,7 +24,7 @@ $(OBJDIR)/%.o: progs/%.c
 
 $(OBJDIR)/prog: $(OBJDIR)/test.o
 	@echo + Linking
-	$(LD) $(LDFLAGS) -N -e start -Ttext $(TEXTOFFSET) -o $@.out $^
+	$(LD) $(LDFLAGS) -N -e start -Ttext $(TEXTOFFSET) -Tdata $(DATAOFFSET) -o $@.out $^
 	$(OBJDUMP) $(OBJDUMPOPT) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
 
