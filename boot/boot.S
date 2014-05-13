@@ -5,7 +5,7 @@ _start:
 	xor $2,$2
 	addi $2, $2, 0x100
 	xor $sp,$sp
-	addi $sp,$sp, 0x200
+	addi $sp,$sp, 0x518
 	jr $2
 	
 

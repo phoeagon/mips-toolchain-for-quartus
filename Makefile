@@ -1,6 +1,9 @@
 HASBOOT ?= 0
 TEXTOFFSET ?= 0x0
-DATAOFFSET ?= 0X100
+DATAOFFSET ?= 0x100
+
+BOOTTEXTOFFSET = 0x100
+BOOTDATAOFFSET = 0x200
 
 CLFAGS := -O0 -fomit-frame-pointer
 OBJDIR := obj
@@ -17,7 +20,7 @@ LD := mips-linux-gnu-ld
 all: $(OUTDIR)/data.mif $(OUTDIR)/prog.mif
 
 complex: *
-	make TEXTOFFSET=0x100 DATAOFFSET=0x800
+	make TEXTOFFSET=0x100 DATAOFFSET=0x100
 	
 $(OBJDIR)/boot.o: boot/boot.S
 	$(CC) -o $@ -c $<
@@ -33,7 +36,7 @@ $(OBJDIR)/boot.hex: $(OBJDIR)/boot.out
 	hexdump -v -e ' 4/1 "%02x " "\n"' $^ | awk 'BEGIN {x=0} {printf("%x : %s%s%s%s;\n",x,$$1,$$2,$$3,$$4);++x}' >$@
 
 bootchain: $(OBJDIR)/boot.hex *
-	make TEXTOFFSET=0x100 DATAOFFSET=0x800 HASBOOT=1
+	make TEXTOFFSET=$(BOOTTEXTOFFSET) DATAOFFSET=$(BOOTDATAOFFSET) HASBOOT=1
 	
 
 clean:
@@ -73,9 +76,9 @@ $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
 	
 $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
-	echo "DEPTH = 16384; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
+	echo "DEPTH = 1024; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OUTDIR)/prog.mif
-	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OBJDIR)/prog.mif
+	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OUTDIR)/prog.mif
 	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OUTDIR)/prog.mif
 	echo "% otherwise specified, radixes = HEX % "				>>$(OUTDIR)/prog.mif
 	echo "CONTENT "				>>$(OUTDIR)/prog.mif
