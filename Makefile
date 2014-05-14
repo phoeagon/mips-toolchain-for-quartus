@@ -5,7 +5,7 @@ DATAOFFSET ?= 0x100
 BOOTTEXTOFFSET = 0x100
 BOOTDATAOFFSET = 0x200
 
-CLFAGS := -O0 -fomit-frame-pointer
+CLFAGS := -O3 -fomit-frame-pointer
 OBJDIR := obj
 OUTDIR := mif
 LDFLAGS :=
