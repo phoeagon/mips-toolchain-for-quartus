@@ -76,7 +76,7 @@ $(OBJDIR)/tmp.data.out:  $(OBJDIR)/prog.data
 	
 $(OUTDIR)/prog.mif: $(OBJDIR)/tmp.out
 	-rm $@
-	echo "DEPTH = 1024; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
+	echo "DEPTH = 16384; % Memory depth and width are required % " 				>>$(OUTDIR)/prog.mif
 	echo "WIDTH = 32; % Enter a decimal number % "				>>$(OUTDIR)/prog.mif
 	echo "ADDRESS_RADIX = HEX; % Address and value radixes are optional % "				>>$(OUTDIR)/prog.mif
 	echo "DATA_RADIX = HEX; % Enter BIN, DEC, HEX, or OCT; unless % "				>>$(OUTDIR)/prog.mif

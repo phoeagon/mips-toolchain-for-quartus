@@ -3,7 +3,7 @@ unsigned int c , b , a , mode ;
 //int t=1;
 //int b;
 int test(){
-	unsigned int c , b , a , mode ;
+	//unsigned int c , b , a , mode ;
 	// *(unsigned int*)0x84=0x0000aaaa;
 	// unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
 // *(unsigned int*)0x84=a;
