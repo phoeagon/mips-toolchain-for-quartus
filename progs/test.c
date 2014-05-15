@@ -3,17 +3,12 @@ int c  , b , a , d , mode ;
 //int t=1;
 //int b;
 /*
-int test(){
-	for ( a = 1; a<101 ;++a){
-		c += a;
-	}
-	b=100;
-	while (1){
-		*(unsigned int*) 0x90 = c ;
-		*(unsigned int*) 0x8c = c / 100 ;
-	}
-}
-*/
+ * int test(){
+	a = 13 ;
+	b = 10 ;
+	c = a % b;
+}*/
+
 
 int test(){
 	//unsigned int c , b , a , mode ;
@@ -47,6 +42,17 @@ int test(){
 				else d -= a;
 			}
 			*(unsigned int*) 0x8c = a | d ;
+		}else if ( mode == 3 ){
+			a = 1 ;
+			if ( c < b ){
+				*(unsigned int*) 0x8c = 0 ;
+				break;
+			}
+			for ( d = b+1 ; d <= c ; ++d )
+				a *= d;
+			for ( d = 1 ; d <= c-b; ++d )
+				a /= d;
+			*(unsigned int*) 0x8c = a ;			
 		}
 		*(unsigned int*) 0x88 = b ;
 		*(unsigned int*) 0x90 = c ;
