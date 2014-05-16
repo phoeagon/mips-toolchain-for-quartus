@@ -1,7 +1,25 @@
 
-int c = 5 , b , a , mode ;
+int c  , b , a , mode ;
 //int t=1;
 //int b;
+int test(){
+	while(1){
+		*(unsigned int*) 0x80 = 0xaaaaaaaa ;
+		*(unsigned int*) 0x8c = 0x55555555 ;
+		//*(unsigned int*) 0x8c = 1 ;
+		//*(unsigned int*) 0x88 = 2 ;
+		//*(unsigned int*) 0x90 = 14 ;
+	}
+}
+/*int test(){
+	while(1){
+		c = *(unsigned int*) 0xC8 ;
+		b = *(unsigned int*) 0xCC ;
+		*(unsigned int*) 0x8c = b % c ;
+		*(unsigned int*) 0x88 = b ;
+		*(unsigned int*) 0x90 = c ;
+	}
+}*/
 /*
 int test(){
 	for ( a = 1; a<10 ;++a){
@@ -32,11 +50,12 @@ int test(){
 		//unsigned int b = *(unsigned int*)0xc8;
 		//unsigned int c = *(unsigned int*)0xcc;
 		//*(unsigned int*) 0x8c = b * c;
-		*(unsigned int*) 0x8c = b<13;
+		*(unsigned int*) 0x8c = b % c ;
 		*(unsigned int*) 0x88 = b ;
 		*(unsigned int*) 0x90 = c ;
 		//*(unsigned int*) 0x8c = b+c  ;
 		
 	}
 }
+
 */
