@@ -2,24 +2,26 @@
 int c  , b , a , mode ;
 //int t=1;
 //int b;
-int test(){
+/*
+ * int test(){
 	while(1){
-		*(unsigned int*) 0x80 = 0xaaaaaaaa ;
-		*(unsigned int*) 0x8c = 0x55555555 ;
-		//*(unsigned int*) 0x8c = 1 ;
-		//*(unsigned int*) 0x88 = 2 ;
-		//*(unsigned int*) 0x90 = 14 ;
+		//*(unsigned int*) 0x80 = 0xaaaaaaaa ;
+		//*(unsigned int*) 0x8c = 0x55555555 ;
+		*(unsigned int*) 0x8c = 1 ;
+		*(unsigned int*) 0x88 = 2 ;
+		*(unsigned int*) 0x90 = 14 ;
 	}
 }
-/*int test(){
+*/
+int test(){
 	while(1){
 		c = *(unsigned int*) 0xC8 ;
 		b = *(unsigned int*) 0xCC ;
-		*(unsigned int*) 0x8c = b % c ;
+		*(unsigned int*) 0x8c = b + c ;
 		*(unsigned int*) 0x88 = b ;
 		*(unsigned int*) 0x90 = c ;
 	}
-}*/
+}
 /*
 int test(){
 	for ( a = 1; a<10 ;++a){
