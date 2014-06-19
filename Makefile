@@ -1,11 +1,11 @@
 HASBOOT ?= 0
 TEXTOFFSET ?= 0x0
-DATAOFFSET ?= 0x100
+DATAOFFSET ?= 0x800
 
 BOOTTEXTOFFSET = 0x100
 BOOTDATAOFFSET = 0x800
 
-CLFAGS := -O3 -fomit-frame-pointer
+CLFAGS := -O0 -fomit-frame-pointer
 OBJDIR := obj
 OUTDIR := mif
 LDFLAGS :=

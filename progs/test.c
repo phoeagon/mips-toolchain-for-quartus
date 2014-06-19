@@ -1,64 +1,38 @@
-
-int c  , b , a , d , mode ;
-//int t=1;
-//int b;
-/*
- * int test(){
-	a = 13 ;
-	b = 10 ;
-	c = a % b;
-}*/
-
-
 int test(){
-	//unsigned int c , b , a , mode ;
-	// *(unsigned int*)0x84=0x0000aaaa;
-	// unsigned int a = ( *(unsigned int*) 0xC0 ) & 0xffff;
-// *(unsigned int*)0x84=a;
-	//*(unsigned int*) 0x88 = 11;
-	//*(unsigned int*) 0x8c = 12;
 	while(1){
-		a = ( *(unsigned int*) 0xC0 ) ;
-		b = ( a / 16 )& 0xf;
-		c = ( a ) & 0xf ; 
-		//b = 32 ;
-		//c = 16;
-		mode = ( a / 256 ) & 0xf;
-		//b = *(unsigned int*) 0xc8 ;
-		//c = *(unsigned int*) 0xcc ;
-		//mode = *(unsigned int*) 0xd0 ; //; ( a / 256 ) & 1;
-		//unsigned int b = *(unsigned int*)0xc8;
-		//unsigned int c = *(unsigned int*)0xcc;
-		//*(unsigned int*) 0x8c = b * c;
-		if ( mode == 0 ){
-			*(unsigned int*) 0x8c = b + c ;
-		}else if ( mode == 1 ) {
-			*(unsigned int*) 0x8c = b * c ;
-		}else if ( mode == 2 ){
-			a = b ; d = c ;
-			while ( a && d ){
-				if ( a > d )
-					a -= d;
-				else d -= a;
-			}
-			*(unsigned int*) 0x8c = a | d ;
-		}else if ( mode == 3 ){
-			a = 1 ;
-			if ( c < b ){
-				*(unsigned int*) 0x8c = 0 ;
-				break;
-			}
-			for ( d = b+1 ; d <= c ; ++d )
-				a *= d;
-			for ( d = 1 ; d <= c-b; ++d )
-				a /= d;
-			*(unsigned int*) 0x8c = a ;			
-		}
-		*(unsigned int*) 0x88 = b ;
-		*(unsigned int*) 0x90 = c ;
-		//*(unsigned int*) 0x8c = b+c  ;
-		
+		int a = 1;
+		//*(int*)(0xf094+a)=*(int *)(0xf000+a);
+		for (a=0;a<0x25;a+=4)
+			*(int*)(0xf098+a)=*(int *)(0xf000+a);
+		/*
+//		*(int*)(0xf094)=*(int *)(0xf000);
+		*(int*)(0xf098)=*(int *)(0xf000);
+		*(int*)(0xf09c)=*(int *)(0xf004);
+		*(int*)(0xf0a0)=*(int *)(0xf008);
+		*(int*)(0xf0a4)=*(int *)(0xf00c);
+		*(int*)(0xf0a8)=*(int *)(0xf010);
+		*(int*)(0xf0ac)=*(int *)(0xf014);
+		*(int*)(0xf0b0)=*(int *)(0xf018);
+		*(int*)(0xf0b4)=*(int *)(0xf01c);
+		*(int*)(0xf0bc)=*(int *)(0xf020);
+		*/
+		//*(int*)(0xf094)=0xaaaaaa;
+/*
+		*(int*)(0xf098)=0;
+		*(int*)(0xf09c)=1;
+		*(int*)(0xf0a0)=0;
+		*(int*)(0xf0a4)=1;
+		*(int*)(0xf0a8)=0;
+		*(int*)(0xf0ac)=1;
+		*(int*)(0xf0b0)=;
+		*(int*)(0xf0b4)=0;
+		*(int*)(0xf0b8)=1;
+		*(int*)(0xf0bc)=0;
+*/
+
+		*(int*)0xf088=*(int *)(0xf028);
+		*(int*)0xf08c=*(int *)(0xf02c);
+		*(int*)0xf090=*(int *)(0xf030);
+
 	}
 }
-
-
