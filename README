@@ -1,0 +1,25 @@
+MIPS Toolchain for Quartus
+===============================
+phoeagon
+
+This tool uses GCC cross compiling toolchain to generate memory
+initialization files to be used Quartus, which can be flashed onto
+dev. boards.
+
+Instructions:
+1. Install GCC mips toolchain on your system.
+Install corresponding cross compiling version. If you are on x86,
+try this prebuilt binary:
+http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/
+
+2. Edit the ".c" file in progs to what you want to execute on your CPU.
+The toolchain does not recognize "main()", instead, execution starts at
+your first function.
+
+3. To build a bootloader-enabled version, with larger memory support,
+use:
+make bootloader
+
+Alternatively, use make to get a "raw" version.
+
+4. Flash the generated MIF file using Quartus.
